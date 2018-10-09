@@ -209,12 +209,12 @@ int main(int argc, char *argv[]) {
     icards[16] = al_load_bitmap("yuichan.bmp");
     icards[17] = al_load_bitmap("rem.bmp");
     icards[18] = al_load_bitmap("azusa.bmp");
-    icards[19] = al_load_bitmap("yun.bmp");
+    icards[19] = al_load_bitmap("katou.bmp");
     icards[20] = al_load_bitmap("ritsu.bmp");
     icards[21] = al_load_bitmap("nanamin.bmp");
     icards[22] = al_load_bitmap("yukinon.bmp");
-    icards[23] = al_load_bitmap("vigne.bmp");
-    icards[24] = al_load_bitmap("kaede.bmp");
+    icards[23] = al_load_bitmap("rikka.bmp");
+    icards[24] = al_load_bitmap("menmu.bmp");
     for(int i=0;i<25;i++){
         if (!icards[i]) {
             al_show_native_message_box(display, "Error", "Error",
