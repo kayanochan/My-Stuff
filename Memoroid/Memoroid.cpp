@@ -17,6 +17,8 @@ const float FPS = 200;
 // Screen dimensions
 const int SW = 1600;
 const int SH = 900;
+// Number of pictures
+const int DECK = 26;
 
 // Declare structs
 struct Button {
@@ -42,6 +44,7 @@ int click(Button button, float clickx, float clicky, int stop);
 void draw(Button button);
 void make(Button &button, float x1, float y1, float x2,
           float y2, int side, ALLEGRO_BITMAP *img);
+void shuffle(int deck[DECK]);
 void exportSave(int hiscores[5][10]);
 
 int compare (const void * a, const void * b)
@@ -126,7 +129,7 @@ int main(int argc, char *argv[]) {
     }
 
 	// Images
-    ALLEGRO_BITMAP *ititle, *iplay, *ihi, *iback, *ipoker, *ireplay, *ilevels[5], *icards[25];
+    ALLEGRO_BITMAP *ititle, *iplay, *ihi, *iback, *ipoker, *ireplay, *ilevels[5], *icards[DECK];
 	ititle = al_load_bitmap("title.bmp");
 	if (!ititle) {
             al_show_native_message_box(display, "Error", "Error",
@@ -190,32 +193,35 @@ int main(int argc, char *argv[]) {
             return -1;
         }
     }
-    icards[0] = al_load_bitmap("mizuki.bmp");
-    icards[1] = al_load_bitmap("aoba.bmp");
-    icards[2] = al_load_bitmap("asuna.bmp");
+
+    icards[0] = al_load_bitmap("aoba.bmp");
+    icards[1] = al_load_bitmap("asuna.bmp");
+    icards[2] = al_load_bitmap("azusa.bmp");
     icards[3] = al_load_bitmap("chitoge.bmp");
     icards[4] = al_load_bitmap("chiyo.bmp");
     icards[5] = al_load_bitmap("emilia.bmp");
     icards[6] = al_load_bitmap("hifumin.bmp");
-    icards[7] = al_load_bitmap("kosaki.bmp");
-    icards[8] = al_load_bitmap("mashiron.bmp");
-    icards[9] = al_load_bitmap("megumin.bmp");
-    icards[10] = al_load_bitmap("mio.bmp");
-    icards[11] = al_load_bitmap("misaka.bmp");
-    icards[12] = al_load_bitmap("nao.bmp");
-    icards[13] = al_load_bitmap("shiro.bmp");
-    icards[14] = al_load_bitmap("taiga.bmp");
-    icards[15] = al_load_bitmap("yui.bmp");
-    icards[16] = al_load_bitmap("yuichan.bmp");
-    icards[17] = al_load_bitmap("rem.bmp");
-    icards[18] = al_load_bitmap("azusa.bmp");
-    icards[19] = al_load_bitmap("katou.bmp");
+    icards[7] = al_load_bitmap("kanade.bmp");
+    icards[8] = al_load_bitmap("katou.bmp");
+    icards[9] = al_load_bitmap("kosaki.bmp");
+    icards[10] = al_load_bitmap("mashiron.bmp");
+    icards[11] = al_load_bitmap("megumin.bmp");
+    icards[12] = al_load_bitmap("menmu.bmp");
+    icards[13] = al_load_bitmap("mio.bmp");
+    icards[14] = al_load_bitmap("misaka.bmp");
+    icards[15] = al_load_bitmap("mizuki.bmp");
+    icards[16] = al_load_bitmap("nanamin.bmp");
+    icards[17] = al_load_bitmap("nao.bmp");
+    icards[18] = al_load_bitmap("rem.bmp");
+    icards[19] = al_load_bitmap("rikka.bmp");
     icards[20] = al_load_bitmap("ritsu.bmp");
-    icards[21] = al_load_bitmap("nanamin.bmp");
-    icards[22] = al_load_bitmap("yukinon.bmp");
-    icards[23] = al_load_bitmap("rikka.bmp");
-    icards[24] = al_load_bitmap("menmu.bmp");
-    for(int i=0;i<25;i++){
+    icards[21] = al_load_bitmap("shiro.bmp");
+    icards[22] = al_load_bitmap("taiga.bmp");
+    icards[23] = al_load_bitmap("yui.bmp");
+    icards[24] = al_load_bitmap("yuichan.bmp");
+    icards[25] = al_load_bitmap("yukinon.bmp");
+
+    for(int i=0; i<DECK; i++){
         if (!icards[i]) {
             al_show_native_message_box(display, "Error", "Error",
                                        "Failed to load graphics!",
@@ -230,9 +236,9 @@ int main(int argc, char *argv[]) {
     ALLEGRO_EVENT ev;
 	srand(time(0));
 
-	int deck[25], deck3[9], deck4[16], deck5[25], deck6[36], deck7[49],
+	int deck[DECK], deck3[9], deck4[16], deck5[25], deck6[36], deck7[49],
         ind, temp, cardholder=-1, game=0, check=0, t=0, hiscore[5][10], stop=0;
-	for(int i=0;i<25;i++){
+	for(int i=0;i<DECK;i++){
         deck[i]=i;
 	}
 	for(int i=0;i<5;i++){
@@ -482,12 +488,7 @@ int main(int argc, char *argv[]) {
                 for(int i=0;i<9;i++){
                     deck3[i] = deck[i%5];
                 }
-                for(int i=0;i<9;i++){
-                    ind=rand()%9;
-                    temp = deck3[ind];
-                    deck3[ind]=deck3[i];
-                    deck3[i]=temp;
-                }
+                shuffle(deck);
                 for(int i=0;i<9;i++){
                     card3[i].img = icards[deck3[i]];
                 }
@@ -558,12 +559,7 @@ int main(int argc, char *argv[]) {
                 for(int i=0;i<16;i++){
                     card4[i].side=3;
                 }
-                for(int i=0;i<25;i++){
-                    ind=rand()%25;
-                    temp = deck[ind];
-                    deck[ind]=deck[i];
-                    deck[i]=temp;
-                }
+                shuffle(deck);
                 for(int i=0;i<16;i++){
                     deck4[i] = deck[i%8];
                 }
@@ -639,12 +635,7 @@ int main(int argc, char *argv[]) {
                 for(int i=0;i<25;i++){
                     card5[i].side=3;
                 }
-                for(int i=0;i<25;i++){
-                    ind=rand()%25;
-                    temp = deck[ind];
-                    deck[ind]=deck[i];
-                    deck[i]=temp;
-                }
+                shuffle(deck);
                 for(int i=0;i<25;i++){
                     deck5[i] = deck[i%13];
                 }
@@ -725,12 +716,7 @@ int main(int argc, char *argv[]) {
                 for(int i=0;i<36;i++){
                     card6[i].side=3;
                 }
-                for(int i=0;i<25;i++){
-                    ind=rand()%25;
-                    temp = deck[ind];
-                    deck[ind]=deck[i];
-                    deck[i]=temp;
-                }
+                shuffle(deck);
                 for(int i=0;i<36;i++){
                     deck6[i] = deck[i%18];
                 }
@@ -806,12 +792,7 @@ int main(int argc, char *argv[]) {
                 for(int i=0;i<49;i++){
                     card7[i].side=3;
                 }
-                for(int i=0;i<25;i++){
-                    ind=rand()%25;
-                    temp = deck[ind];
-                    deck[ind]=deck[i];
-                    deck[i]=temp;
-                }
+                shuffle(deck);
                 for(int i=0;i<49;i++){
                     deck7[i] = deck[i%25];
                 }
@@ -933,6 +914,19 @@ void make(Button &button, float x1, float y1, float x2,
 	button.y2 = y2;
 	button.side = side;
 	button.img = img;
+
+}
+
+void shuffle(int deck[DECK]) {
+
+    int ind, temp;
+
+    for(int i=0;i<DECK;i++){
+        ind=rand()%DECK;
+        temp = deck[ind];
+        deck[ind]=deck[i];
+        deck[i]=temp;
+    }
 
 }
 
