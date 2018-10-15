@@ -44,7 +44,7 @@ int click(Button button, float clickx, float clicky, int stop);
 void draw(Button button);
 void make(Button &button, float x1, float y1, float x2,
           float y2, int side, ALLEGRO_BITMAP *img);
-void shuffle(int deck[DECK]);
+void shuffle(int deck[], int n);
 void exportSave(int hiscores[5][10]);
 
 int compare (const void * a, const void * b)
@@ -479,16 +479,16 @@ int main(int argc, char *argv[]) {
                 for(int i=0;i<9;i++){
                     card3[i].side=3;
                 }
-                for(int i=0;i<25;i++){
-                    ind=rand()%25;
-                    temp = deck[ind];
-                    deck[ind]=deck[i];
-                    deck[i]=temp;
-                }
+                shuffle(deck, DECK);
                 for(int i=0;i<9;i++){
                     deck3[i] = deck[i%5];
                 }
-                shuffle(deck);
+                for(int i=0;i<9;i++){
+                    ind=rand()%9;
+                    temp = deck3[ind];
+                    deck3[ind]=deck3[i];
+                    deck3[i]=temp;
+                }
                 for(int i=0;i<9;i++){
                     card3[i].img = icards[deck3[i]];
                 }
@@ -544,7 +544,7 @@ int main(int argc, char *argv[]) {
             if (click(levels[0], mouse.x, mouse.y, stop)&&levels[0].side==2) {
                 title.side = 0;
                 for(int i=0;i<5;i++){
-                        levels[i].side=0;
+                    levels[i].side=0;
                 }
                 game=30;
             }
@@ -917,12 +917,12 @@ void make(Button &button, float x1, float y1, float x2,
 
 }
 
-void shuffle(int deck[DECK]) {
+void shuffle(int deck[],int n) {
 
     int ind, temp;
 
-    for(int i=0;i<DECK;i++){
-        ind=rand()%DECK;
+    for(int i=0;i<n;i++){
+        ind=rand()%n;
         temp = deck[ind];
         deck[ind]=deck[i];
         deck[i]=temp;
