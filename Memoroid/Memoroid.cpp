@@ -45,8 +45,10 @@ void draw(Button button);
 void make(Button &button, float x1, float y1, float x2,
           float y2, int side, ALLEGRO_BITMAP *img);
 void shuffle(int deck[], int n = DECK);
-float mean(int avg[5]);
-void exportSave(int hiscores[5][10]);
+int mean(int avg[5]);
+void updateScore(int hiscore[5][10], int hiavg[5], int curravg[5][5], int avgindex[5],
+                 int t, int game);
+void exportSave(int hiscores[5][10], int hiavg[5]);
 
 int compare (const void * a, const void * b)
 {
@@ -247,6 +249,7 @@ int main(int argc, char *argv[]) {
         for(int j=0;j<10;j++){
             hiscore[i][j]=600*FPS;
         }
+        hiavg[i]=600*FPS;
 	}
 	for(int i=0;i<5;i++){
         for(int j=0;j<5;j++){
@@ -336,12 +339,10 @@ int main(int argc, char *argv[]) {
         al_get_mouse_state(&mouse);
 
         // Close the game
-      	if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-        	doexit = true;
-      	}
 
-      	else if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+      	if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
          	if (ev.keyboard.keycode==ALLEGRO_KEY_ESCAPE) {
+                exportSave(hiscore, hiavg);
                 doexit = true;
          	}
       	}
@@ -387,9 +388,11 @@ int main(int argc, char *argv[]) {
                                       i+1, (float)hiscore[game/10-3][i]/FPS);
                     }
                 }
-                al_draw_textf(font, BLACK, disp_data.width/2,
-                              0.9*disp_data.height, ALLEGRO_ALIGN_CENTER, "Mean of 5: %10.2f",
-                              (float)hiavg[game/10-3]/FPS);
+                if(hiavg[game/10-3]<600*FPS){
+                    al_draw_textf(font, BLACK, disp_data.width/2,
+                                  0.9*disp_data.height, ALLEGRO_ALIGN_CENTER, "Mean of 5: %10.2f",
+                                  (float)hiavg[game/10-3]/FPS);
+                }
             }
 
             else if (game) {
@@ -400,7 +403,7 @@ int main(int argc, char *argv[]) {
                 }
                 if(avgindex[game-3]>4){
                     al_draw_textf(font, BLACK, 4*disp_data.width/5,0.5*disp_data.height, 0,
-                                  "Mean: %.2f", mean(curravg[game-3])/FPS);
+                                  "Mean: %.2f", (float)mean(curravg[game-3])/FPS);
                 }
             }
 
@@ -538,19 +541,7 @@ int main(int argc, char *argv[]) {
                             }
                         }
                         if(check){
-                            for(int i=9;i>=0;i--){
-                                if(hiscore[0][i]>t){
-                                    hiscore[0][i]=t;
-                                    qsort(hiscore[0], 10, sizeof(int), compare);
-                                    exportSave(hiscore);
-                                    break;
-                                }
-                            }
-                            curravg[0][avgindex[0]%5]=t;
-                            avgindex[0]++;
-                            if(mean(curravg[0])<hiavg[0]){
-                                hiavg[0]=mean(curravg[0]);
-                            }
+                            updateScore(hiscore, hiavg, curravg, avgindex, t, 0);
                             bback.side = 1;
                             replay.side = 1;
                         }
@@ -613,15 +604,7 @@ int main(int argc, char *argv[]) {
                             }
                         }
                         if(check){
-                            for(int i=9;i>=0;i--){
-                                if(hiscore[1][i]>t){
-                                    hiscore[1][i]=t;
-                                    qsort(hiscore[1], 10, sizeof(int), compare);
-                                    exportSave(hiscore);
-                                    replay.side = 1;
-                                    break;
-                                }
-                            }
+                            updateScore(hiscore, hiavg, curravg, avgindex, t, 1);
                             bback.side = 1;
                             replay.side=1;
                         }
@@ -689,15 +672,7 @@ int main(int argc, char *argv[]) {
                             }
                         }
                         if(check){
-                            for(int i=9;i>=0;i--){
-                                if(hiscore[2][i]>t){
-                                    hiscore[2][i]=t;
-                                    qsort (hiscore[2], 10, sizeof(int), compare);
-                                    exportSave(hiscore);
-                                    replay.side = 1;
-                                    break;
-                                }
-                            }
+                            updateScore(hiscore, hiavg, curravg, avgindex, t, 2);
                             bback.side = 1;
                             replay.side=1;
                         }
@@ -760,15 +735,7 @@ int main(int argc, char *argv[]) {
                             }
                         }
                         if(check){
-                            for(int i=9;i>=0;i--){
-                                if(hiscore[3][i]>t){
-                                    hiscore[3][i]=t;
-                                    qsort (hiscore[3], 10, sizeof(int), compare);
-                                    exportSave(hiscore);
-                                    replay.side = 1;
-                                    break;
-                                }
-                            }
+                            updateScore(hiscore, hiavg, curravg, avgindex, t, 3);
                             bback.side = 1;
                             replay.side=1;
                         }
@@ -836,15 +803,7 @@ int main(int argc, char *argv[]) {
                             }
                         }
                         if(check){
-                            for(int i=9;i>=0;i--){
-                                if(hiscore[4][i]>t){
-                                    hiscore[4][i]=t;
-                                    qsort (hiscore[4], 10, sizeof(int), compare);
-                                    exportSave(hiscore);
-                                    replay.side = 1;
-                                    break;
-                                }
-                            }
+                            updateScore(hiscore, hiavg, curravg, avgindex, t, 4);
                             bback.side = 1;
                             replay.side=1;
                         }
@@ -936,13 +895,31 @@ void shuffle(int deck[],int n) {
 
 }
 
-float mean(int avg[5]){
+int mean(int avg[5]){
 
-    return (float)(avg[0]+avg[1]+avg[2]+avg[3]+avg[4])/5;
+    return (avg[0]+avg[1]+avg[2]+avg[3]+avg[4])/5;
 
 }
 
-void exportSave(int hiscores[5][10]) {
+void updateScore(int hiscore[5][10], int hiavg[5], int curravg[5][5], int avgindex[5], int t, int game) {
+
+    for(int i=9;i>=0;i--){
+        if(hiscore[game][i]>t){
+            hiscore[game][i]=t;
+            qsort(hiscore[game], 10, sizeof(int), compare);
+            exportSave(hiscore, hiavg);
+            break;
+        }
+    }
+    curravg[game][avgindex[game]%5]=t;
+    avgindex[game]++;
+    if(mean(curravg[game])<hiavg[game]&&avgindex[game]>4){
+        hiavg[game]=mean(curravg[game]);
+    }
+
+}
+
+void exportSave(int hiscores[5][10], int hiavg[5]) {
 
     FILE *fptr;
 
@@ -952,6 +929,9 @@ void exportSave(int hiscores[5][10]) {
         for(int j=0;j<10;j++){
             fprintf(fptr, "%d\n", hiscores[i][j]);
         }
+    }
+    for(int i=0;i<5;i++){
+        fprintf(fptr, "%d\n", hiavg[i]);
     }
 
     fclose(fptr);
