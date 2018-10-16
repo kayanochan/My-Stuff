@@ -45,6 +45,7 @@ void draw(Button button);
 void make(Button &button, float x1, float y1, float x2,
           float y2, int side, ALLEGRO_BITMAP *img);
 void shuffle(int deck[], int n = DECK);
+float mean(int avg[5]);
 void exportSave(int hiscores[5][10]);
 
 int compare (const void * a, const void * b)
@@ -237,7 +238,8 @@ int main(int argc, char *argv[]) {
 	srand(time(0));
 
 	int deck[DECK], deck3[9], deck4[16], deck5[25], deck6[36], deck7[49],
-        ind, temp, cardholder=-1, game=0, check=0, t=0, hiscore[5][10], stop=0;
+        ind, temp, cardholder=-1, game=0, check=0, t=0, hiscore[5][10], stop=0,
+        hiavg[5], curravg[5][5], avgindex[5];
 	for(int i=0;i<DECK;i++){
         deck[i]=i;
 	}
@@ -245,6 +247,12 @@ int main(int argc, char *argv[]) {
         for(int j=0;j<10;j++){
             hiscore[i][j]=600*FPS;
         }
+	}
+	for(int i=0;i<5;i++){
+        for(int j=0;j<5;j++){
+            curravg[i][j]=0;
+        }
+        avgindex[i]=0;
 	}
 
 	// Buttons
@@ -301,6 +309,9 @@ int main(int argc, char *argv[]) {
             for(int j=0;j<10;j++){
                 fscanf(fptr,"%d",&hiscore[i][j]);
             }
+        }
+        for(int i=0;i<5;i++){
+            fscanf(fptr,"%d",&hiavg[i]);
         }
     }
     fclose(fptr);
@@ -370,11 +381,26 @@ int main(int argc, char *argv[]) {
             }
             if(game>10){
                 for(int i=0;i<10;i++){
-                    if(hiscore[game/10-3][i]<600*FPS){
+                    if(hiscore[game/10-3][i]<600*FPS) {
                         al_draw_textf(font, BLACK, disp_data.width/2,
-                                      (0.12+(float)(i-1)/10)*disp_data.height, ALLEGRO_ALIGN_CENTER, "%d. %10.2f",
+                                      (0.09+(float)(i-1)/12)*disp_data.height, ALLEGRO_ALIGN_CENTER, "%d. %10.2f",
                                       i+1, (float)hiscore[game/10-3][i]/FPS);
                     }
+                }
+                al_draw_textf(font, BLACK, disp_data.width/2,
+                              0.9*disp_data.height, ALLEGRO_ALIGN_CENTER, "Mean of 5: %10.2f",
+                              (float)hiavg[game/10-3]/FPS);
+            }
+
+            else if (game) {
+                for(int i=0;i<5;i++){
+                    if(curravg[game-3][i])
+                    al_draw_textf(font, BLACK, 4*disp_data.width/5,(0.1+(float)(i-1)/10)*disp_data.height, 0,
+                                  "%d. %.2f", i+1, (float)curravg[game-3][i]/FPS);
+                }
+                if(avgindex[game-3]>4){
+                    al_draw_textf(font, BLACK, 4*disp_data.width/5,0.5*disp_data.height, 0,
+                                  "Mean: %.2f", mean(curravg[game-3])/FPS);
                 }
             }
 
@@ -519,6 +545,11 @@ int main(int argc, char *argv[]) {
                                     exportSave(hiscore);
                                     break;
                                 }
+                            }
+                            curravg[0][avgindex[0]%5]=t;
+                            avgindex[0]++;
+                            if(mean(curravg[0])<hiavg[0]){
+                                hiavg[0]=mean(curravg[0]);
                             }
                             bback.side = 1;
                             replay.side = 1;
@@ -902,6 +933,12 @@ void shuffle(int deck[],int n) {
         deck[ind]=deck[i];
         deck[i]=temp;
     }
+
+}
+
+float mean(int avg[5]){
+
+    return (float)(avg[0]+avg[1]+avg[2]+avg[3]+avg[4])/5;
 
 }
 
