@@ -911,8 +911,16 @@ void updateScore(int hiscore[5][10], int hiavg[5], int curravg[5][5], int avgind
             break;
         }
     }
-    curravg[game][avgindex[game]%5]=t;
-    avgindex[game]++;
+    if (avgindex[game]<5){
+        curravg[game][avgindex[game]%5]=t;
+        avgindex[game]++;
+    }
+    else {
+        for(int i=0;i<4;i++){
+            curravg[game][i]=curravg[game][i+1];
+        }
+        curravg[game][4]=t;
+    }
     if(mean(curravg[game])<hiavg[game]&&avgindex[game]>4){
         hiavg[game]=mean(curravg[game]);
     }
